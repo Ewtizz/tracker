@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>До 22 августа 2026</title>
+<title>До 28 августа 2026</title>
 </head>
 <body>
 <style>
@@ -316,8 +316,8 @@
 
 <div class="wrap">
   <header class="head">
-    <h1 class="head__title">Трекер · до 27 августа</h1>
-    <div class="head__target">цель — <b>27.08.2026, 00:00</b> · местное время</div>
+    <h1 class="head__title">Трекер · до 28 августа</h1>
+    <div class="head__target">цель — <b>28.08.2026, 00:00</b> · местное время</div>
   </header>
 
   <main>
@@ -330,7 +330,7 @@
       <span class="readout__int" id="int">0</span><span class="readout__sep">,</span><span class="readout__dec"><span class="readout__frac" id="frac">0000</span><span class="readout__tail" id="tail">000</span></span><span class="readout__pct">%</span>
     </div>
 
-    <p class="caption"><span class="dot"></span><span id="caption">от интервала 1 января — 27 августа 2026</span></p>
+    <p class="caption"><span class="dot"></span><span id="caption">от интервала 22 июля — 28 августа 2026</span></p>
   </main>
 
   <section class="scale" aria-hidden="true">
@@ -357,7 +357,7 @@
 <script>
   // ── настройки ────────────────────────────────────────────
   // Месяцы в JS считаются с нуля: 7 = август, 0 = январь.
-  const TARGET = new Date(2026, 7, 27, 0, 0, 0, 0);   // 27 августа 2026, 00:00
+  const TARGET = new Date(2026, 7, 28, 0, 0, 0, 0);   // 28 августа 2026, 00:00
   const START  = new Date(2026, 6, 22,  0, 0, 0, 0);   // от чего считаем 100 %
 
   const SPAN = TARGET - START;
@@ -448,8 +448,8 @@
 
     document.body.classList.toggle("is-over", over);
     capEl.textContent = over
-      ? "срок вышел — 22 августа 2026 наступило"
-      : (mode === "left" ? "осталось" : "прошло") + " от интервала 22 июля — 22 августа 2026";
+      ? "срок вышел — 28 августа 2026 наступило"
+      : (mode === "left" ? "осталось" : "прошло") + " от интервала 22 июля — 28 августа 2026";
 
     requestAnimationFrame(frame);
   }
