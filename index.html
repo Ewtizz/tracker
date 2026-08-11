@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>До 28 августа 2026</title>
+<title>До 22 и 28 августа 2026</title>
 </head>
 <body>
 <style>
@@ -71,6 +71,14 @@
     color-scheme: dark;
   }
 
+  /* второй трекер держит свой акцент, чтобы два отсчёта не сливались */
+  .tracker--cool { --accent: #6FA8D0; --accent-d: #2C4E68; }
+  @media (prefers-color-scheme: light) {
+    .tracker--cool { --accent: #1F5E85; --accent-d: #BBD4E6; }
+  }
+  :root[data-theme="light"] .tracker--cool { --accent: #1F5E85; --accent-d: #BBD4E6; }
+  :root[data-theme="dark"]  .tracker--cool { --accent: #6FA8D0; --accent-d: #2C4E68; }
+
   body {
     min-height: 100dvh;
     background: var(--ground);
@@ -86,10 +94,10 @@
     width: min(980px, 100%);
     display: flex;
     flex-direction: column;
-    gap: clamp(28px, 5vw, 52px);
+    gap: clamp(26px, 4.5vw, 44px);
   }
 
-  /* ── шапка ─────────────────────────────────────────────── */
+  /* ── шапка страницы ────────────────────────────────────── */
   .head {
     display: flex;
     flex-wrap: wrap;
@@ -115,6 +123,44 @@
     color: var(--muted);
   }
   .head__target b { color: var(--text); font-weight: 400; }
+
+  /* ── список трекеров ───────────────────────────────────── */
+  .trackers {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(34px, 6vw, 60px);
+  }
+  .tracker {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(22px, 4vw, 38px);
+  }
+  .tracker + .tracker { border-top: 1px solid var(--rule); padding-top: clamp(30px, 5vw, 52px); }
+
+  .tracker__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 24px;
+  }
+  .tracker__title {
+    margin: 0;
+    font-family: var(--f-display);
+    font-variation-settings: "wght" 600, "wdth" 87.5;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .tracker__target {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .tracker__target b { color: var(--text); font-weight: 400; }
 
   /* ── переключатель режима ──────────────────────────────── */
   .modes { display: flex; gap: 22px; }
@@ -143,10 +189,10 @@
     font-variation-settings: "wght" 300, "wdth" 87.5;
     font-weight: 300;
     font-variant-numeric: tabular-nums;
-    font-size: clamp(3.6rem, 16vw, 10.5rem);
+    font-size: clamp(3rem, 13vw, 8.4rem);
     line-height: 0.86;
     letter-spacing: -0.02em;
-    margin-top: clamp(10px, 3vw, 26px);
+    margin-top: clamp(4px, 1.5vw, 14px);
   }
   .readout::before {
     content: "";
@@ -157,7 +203,6 @@
     pointer-events: none;
     z-index: -1;
   }
-  .readout__int { }
   .readout__sep { color: var(--muted); }
   .readout__dec {
     display: flex;
@@ -187,7 +232,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 18px;
+    margin: 0;
     font-size: 0.78rem;
     color: var(--muted);
   }
@@ -201,7 +246,7 @@
   /* ── шкала интервала ───────────────────────────────────── */
   .scale {
     position: relative;
-    height: 68px;
+    height: 62px;
     border-top: 1px solid var(--rule);
     padding-top: 1px;
   }
@@ -285,7 +330,7 @@
     color: var(--muted);
   }
 
-  /* ── подвал ────────────────────────────────────────────── */
+  /* ── подвал трекера ────────────────────────────────────── */
   .foot {
     display: flex;
     flex-wrap: wrap;
@@ -299,7 +344,7 @@
   }
   .foot span b { color: var(--muted); font-weight: 400; }
 
-  body.is-over .caption .dot { animation: none; background: var(--muted); }
+  .tracker.is-over .caption .dot { animation: none; background: var(--muted); }
 
   @media (max-width: 560px) {
     .units { grid-template-columns: repeat(2, 1fr); }
@@ -316,76 +361,95 @@
 
 <div class="wrap">
   <header class="head">
-    <h1 class="head__title">Трекер · до 28 августа</h1>
-    <div class="head__target">цель — <b>28.08.2026, 00:00</b> · местное время</div>
+    <h1 class="head__title">Трекеры · до 22 и 28 августа</h1>
+    <div class="head__target">точка отсчёта — <b>22.07.2026, 00:00</b> · местное время</div>
   </header>
 
-  <main>
-    <div class="modes">
-      <button class="mode" id="m-left" aria-pressed="true">осталось</button>
-      <button class="mode" id="m-gone" aria-pressed="false">прошло</button>
+  <div class="trackers" id="trackers"></div>
+</div>
+
+<template id="tpl-tracker">
+  <section class="tracker">
+    <header class="tracker__head">
+      <h2 class="tracker__title" data-f="title">—</h2>
+      <div class="tracker__target">цель — <b data-f="target">—</b></div>
+    </header>
+
+    <div class="modes" role="group" data-f="modes">
+      <button class="mode" data-f="m-left" aria-pressed="true">осталось</button>
+      <button class="mode" data-f="m-gone" aria-pressed="false">прошло</button>
     </div>
 
     <div class="readout" role="timer" aria-live="off">
-      <span class="readout__int" id="int">0</span><span class="readout__sep">,</span><span class="readout__dec"><span class="readout__frac" id="frac">0000</span><span class="readout__tail" id="tail">000</span></span><span class="readout__pct">%</span>
+      <span class="readout__int" data-f="int">0</span><span class="readout__sep">,</span><span class="readout__dec"><span class="readout__frac" data-f="frac">0000</span><span class="readout__tail" data-f="tail">000</span></span><span class="readout__pct">%</span>
     </div>
 
-    <p class="caption"><span class="dot"></span><span id="caption">от интервала 22 июля — 28 августа 2026</span></p>
-  </main>
+    <p class="caption"><span class="dot"></span><span data-f="caption">—</span></p>
 
-  <section class="scale" aria-hidden="true">
-    <div class="axis" id="axis-base"></div>
-    <div class="axis axis--lit" id="axis-lit"></div>
-    <div class="needle" id="needle"><span class="needle__flag">сейчас</span></div>
+    <section class="scale" aria-hidden="true">
+      <div class="axis" data-f="axis-base"></div>
+      <div class="axis axis--lit" data-f="axis-lit"></div>
+      <div class="needle" data-f="needle"><span class="needle__flag">сейчас</span></div>
+    </section>
+
+    <section class="units">
+      <div class="unit"><span class="unit__val" data-f="u-d">0</span><span class="unit__lbl">дней</span></div>
+      <div class="unit"><span class="unit__val" data-f="u-h">0</span><span class="unit__lbl">часов</span></div>
+      <div class="unit"><span class="unit__val" data-f="u-m">0</span><span class="unit__lbl">минут</span></div>
+      <div class="unit"><span class="unit__val" data-f="u-s">0</span><span class="unit__lbl">секунд</span></div>
+    </section>
+
+    <footer class="foot">
+      <span>точка отсчёта <b data-f="f-start">—</b></span>
+      <span>интервал <b data-f="f-total">—</b></span>
+      <span>шаг 1/10000 % <b data-f="f-step">—</b></span>
+      <span>бледные знаки <b data-f="f-tail">—</b></span>
+    </footer>
   </section>
-
-  <section class="units">
-    <div class="unit"><span class="unit__val" id="u-d">0</span><span class="unit__lbl">дней</span></div>
-    <div class="unit"><span class="unit__val" id="u-h">0</span><span class="unit__lbl">часов</span></div>
-    <div class="unit"><span class="unit__val" id="u-m">0</span><span class="unit__lbl">минут</span></div>
-    <div class="unit"><span class="unit__val" id="u-s">0</span><span class="unit__lbl">секунд</span></div>
-  </section>
-
-  <footer class="foot">
-    <span>точка отсчёта <b id="f-start">01.01.2026</b></span>
-    <span>интервал <b id="f-total">—</b></span>
-    <span>шаг 1/10000 % <b id="f-step">—</b></span>
-    <span>бледные знаки <b id="f-tail">—</b></span>
-  </footer>
-</div>
+</template>
 
 <script>
   // ── настройки ────────────────────────────────────────────
-  // Месяцы в JS считаются с нуля: 7 = август, 0 = январь.
-  const TARGET = new Date(2026, 7, 28, 0, 0, 0, 0);   // 28 августа 2026, 00:00
-  const START  = new Date(2026, 6, 22,  0, 0, 0, 0);   // от чего считаем 100 %
+  // Месяцы в JS считаются с нуля: 6 = июль, 7 = август.
+  const START = new Date(2026, 6, 22, 0, 0, 0, 0);   // от чего считаем 100 % — общая точка отсчёта
 
-  const SPAN = TARGET - START;
+  const TRACKERS = [
+    {
+      target: new Date(2026, 7, 22, 0, 0, 0, 0),     // 22 августа 2026, 00:00
+      title:  "Трекер · до 22 августа",
+      date:   "22 августа 2026",
+      span:   "22 июля — 22 августа 2026",
+      cls:    ""
+    },
+    {
+      target: new Date(2026, 7, 28, 0, 0, 0, 0),     // 28 августа 2026, 00:00
+      title:  "Трекер · до 28 августа",
+      date:   "28 августа 2026",
+      span:   "22 июля — 28 августа 2026",
+      cls:    "tracker--cool"
+    }
+  ];
+
   const MONTHS = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
   const nf = new Intl.NumberFormat("ru-RU");
-
-  const el = (id) => document.getElementById(id);
-  const intEl = el("int"), fracEl = el("frac"), tailEl = el("tail"), capEl = el("caption");
-  const needle = el("needle"), axisLit = el("axis-lit");
-  const uD = el("u-d"), uH = el("u-h"), uM = el("u-m"), uS = el("u-s");
-
-  let mode = "left"; // "left" — осталось, "gone" — прошло
+  const pad = (n, w = 2) => String(n).padStart(w, "0");
+  const ru = (n, d) => n.toFixed(d).replace(".", ",");
 
   // ── шкала: деления по неделям, подписи по месяцам ────────
-  function buildAxis(node) {
+  function buildAxis(node, target, span) {
     const frag = document.createDocumentFragment();
 
-    for (let t = START.getTime(); t <= TARGET.getTime(); t += 7 * 864e5) {
+    for (let t = START.getTime(); t <= target.getTime(); t += 7 * 864e5) {
       const tick = document.createElement("i");
       tick.className = "tick tick--minor";
-      tick.style.left = ((t - START) / SPAN * 100) + "%";
+      tick.style.left = ((t - START) / span * 100) + "%";
       frag.appendChild(tick);
     }
 
     const cur = new Date(START.getFullYear(), START.getMonth(), 1);
-    while (cur <= TARGET) {
+    while (cur <= target) {
       if (cur >= START) {
-        const pos = ((cur - START) / SPAN * 100) + "%";
+        const pos = ((cur - START) / span * 100) + "%";
         const tick = document.createElement("i");
         tick.className = "tick tick--major";
         tick.style.left = pos;
@@ -402,67 +466,93 @@
 
     node.appendChild(frag);
   }
-  buildAxis(el("axis-base"));
-  buildAxis(axisLit);
 
-  // ── подвал ──────────────────────────────────────────────
-  const totalDays = Math.round(SPAN / 864e5);
-  el("f-start").textContent = START.toLocaleDateString("ru-RU");
-  el("f-total").textContent = nf.format(totalDays) + " дн · " + nf.format(Math.round(SPAN / 1000)) + " с";
-  const stepSec = SPAN / 1e6 / 1000;                     // 0,0001 % интервала в секундах
-  const ru = (n, d) => n.toFixed(d).replace(".", ",");
-  el("f-step").textContent = "≈ " + ru(stepSec, 2) + " с";
-  el("f-tail").textContent = "ещё 3 разряда, до " + ru(stepSec / 1000, 3) + " с";
+  // ── сборка одного трекера ───────────────────────────────
+  const tpl = document.getElementById("tpl-tracker");
 
-  // ── тик ─────────────────────────────────────────────────
-  const pad = (n, w = 2) => String(n).padStart(w, "0");
+  function makeTracker(cfg) {
+    const root = tpl.content.firstElementChild.cloneNode(true);
+    if (cfg.cls) root.classList.add(cfg.cls);
+
+    const f = {};
+    root.querySelectorAll("[data-f]").forEach((n) => { f[n.dataset.f] = n; });
+
+    const TARGET = cfg.target;
+    const SPAN = TARGET - START;
+
+    f.title.textContent = cfg.title;
+    f.target.textContent = TARGET.toLocaleDateString("ru-RU") + ", 00:00";
+    f.modes.setAttribute("aria-label", cfg.title);
+
+    buildAxis(f["axis-base"], TARGET, SPAN);
+    buildAxis(f["axis-lit"], TARGET, SPAN);
+
+    // ── подвал ────────────────────────────────────────────
+    const totalDays = Math.round(SPAN / 864e5);
+    const stepSec = SPAN / 1e6 / 1000;                   // 0,0001 % интервала в секундах
+    f["f-start"].textContent = START.toLocaleDateString("ru-RU");
+    f["f-total"].textContent = nf.format(totalDays) + " дн · " + nf.format(Math.round(SPAN / 1000)) + " с";
+    f["f-step"].textContent = "≈ " + ru(stepSec, 2) + " с";
+    f["f-tail"].textContent = "ещё 3 разряда, до " + ru(stepSec / 1000, 3) + " с";
+
+    let mode = "left"; // "left" — осталось, "gone" — прошло
+
+    function setMode(next) {
+      mode = next;
+      f["m-left"].setAttribute("aria-pressed", String(next === "left"));
+      f["m-gone"].setAttribute("aria-pressed", String(next === "gone"));
+    }
+    f["m-left"].addEventListener("click", () => setMode("left"));
+    f["m-gone"].addEventListener("click", () => setMode("gone"));
+
+    // ── тик ───────────────────────────────────────────────
+    function render(now) {
+      const gone = Math.min(Math.max((now - START) / SPAN, 0), 1);
+      const over = now >= TARGET.getTime();
+
+      const share = mode === "left" ? 1 - gone : gone;
+
+      // четыре знака — заявленная точность, ещё три идут «тенью» и меняются покадрово
+      const pct = (share * 100).toFixed(7).split(".");
+      f.int.textContent = pct[0];
+      f.frac.textContent = pct[1].slice(0, 4);
+      f.tail.textContent = pct[1].slice(4);
+
+      // стрелка стоит на «сейчас», подсвечена та часть шкалы, которую мы показываем
+      const posPct = gone * 100;
+      f.needle.style.setProperty("--pos", posPct + "%");
+      f["axis-lit"].style.setProperty("--clip-l", (mode === "left" ? posPct : 0) + "%");
+      f["axis-lit"].style.setProperty("--clip-r", (mode === "left" ? 0 : 100 - posPct) + "%");
+
+      // единицы: до цели либо от точки отсчёта
+      let ms = mode === "left" ? Math.max(TARGET - now, 0) : Math.max(now - START, 0);
+      const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+      const h = Math.floor(ms / 36e5);  ms -= h * 36e5;
+      const m = Math.floor(ms / 6e4);   ms -= m * 6e4;
+      f["u-d"].textContent = nf.format(d);
+      f["u-h"].textContent = pad(h);
+      f["u-m"].textContent = pad(m);
+      f["u-s"].textContent = (ms / 1000).toFixed(2).padStart(5, "0").replace(".", ",");
+
+      root.classList.toggle("is-over", over);
+      f.caption.textContent = over
+        ? "срок вышел — " + cfg.date + " наступило"
+        : (mode === "left" ? "осталось" : "прошло") + " от интервала " + cfg.span;
+    }
+
+    return { root, render };
+  }
+
+  const host = document.getElementById("trackers");
+  const views = TRACKERS.map(makeTracker);
+  views.forEach((v) => host.appendChild(v.root));
 
   function frame() {
     const now = Date.now();
-    const gone = Math.min(Math.max((now - START) / SPAN, 0), 1);
-    const over = now >= TARGET.getTime();
-
-    const share = mode === "left" ? 1 - gone : gone;
-
-    // четыре знака — заявленная точность, ещё три идут «тенью» и меняются покадрово
-    const pct = (share * 100).toFixed(7).split(".");
-    intEl.textContent = pct[0];
-    fracEl.textContent = pct[1].slice(0, 4);
-    tailEl.textContent = pct[1].slice(4);
-
-    // стрелка стоит на «сейчас», подсвечена та часть шкалы, которую мы показываем
-    const posPct = gone * 100;
-    needle.style.setProperty("--pos", posPct + "%");
-    axisLit.style.setProperty("--clip-l", (mode === "left" ? posPct : 0) + "%");
-    axisLit.style.setProperty("--clip-r", (mode === "left" ? 0 : 100 - posPct) + "%");
-
-    // единицы: до цели либо от точки отсчёта
-    let ms = mode === "left" ? Math.max(TARGET - now, 0) : Math.max(now - START, 0);
-    const d = Math.floor(ms / 864e5); ms -= d * 864e5;
-    const h = Math.floor(ms / 36e5);  ms -= h * 36e5;
-    const m = Math.floor(ms / 6e4);   ms -= m * 6e4;
-    uD.textContent = nf.format(d);
-    uH.textContent = pad(h);
-    uM.textContent = pad(m);
-    uS.textContent = (ms / 1000).toFixed(2).padStart(5, "0").replace(".", ",");
-
-    document.body.classList.toggle("is-over", over);
-    capEl.textContent = over
-      ? "срок вышел — 28 августа 2026 наступило"
-      : (mode === "left" ? "осталось" : "прошло") + " от интервала 22 июля — 28 августа 2026";
-
+    for (const v of views) v.render(now);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-
-  // ── переключатель ───────────────────────────────────────
-  function setMode(next) {
-    mode = next;
-    el("m-left").setAttribute("aria-pressed", String(next === "left"));
-    el("m-gone").setAttribute("aria-pressed", String(next === "gone"));
-  }
-  el("m-left").addEventListener("click", () => setMode("left"));
-  el("m-gone").addEventListener("click", () => setMode("gone"));
 </script>
 </body>
 </html>
