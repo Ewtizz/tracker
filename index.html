@@ -215,9 +215,15 @@
   .readout::before {
     content: "";
     position: absolute;
-    left: -8%; top: -60%;
-    width: 70%; height: 260%;
-    background: radial-gradient(ellipse at 30% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 62%);
+    /* коробка симметрична относительно центра свечения: left+width/2 и top+height/2 дают 31% / 50% */
+    left: 0; top: -110%;
+    width: 62%; height: 320%;
+    /* closest-side + центр по 50%: градиент гаснет ровно на границах коробки,
+       поэтому её край не режет свечение (farthest-corner выходил за коробку и давал ступеньку) */
+    background: radial-gradient(ellipse closest-side at 50% 50%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      color-mix(in srgb, var(--accent) 7%, transparent) 48%,
+      transparent 100%);
     pointer-events: none;
     z-index: -1;
   }
@@ -248,12 +254,24 @@
   }
   .caption {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 6px 10px;
     margin: 0;
     font-size: 0.78rem;
     color: var(--muted);
   }
+  .caption__next {
+    margin-left: auto;
+    font-family: var(--f-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .caption__next b { font-weight: 400; color: var(--muted); }
+  .caption__next .caption__secs { color: var(--accent); }
   .caption .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--accent);
@@ -402,7 +420,7 @@
       <span class="readout__int" data-f="int">0</span><span class="readout__sep">,</span><span class="readout__dec"><span class="readout__frac" data-f="frac">0000</span><span class="readout__tail" data-f="tail">000</span></span><span class="readout__pct">%</span>
     </div>
 
-    <p class="caption"><span class="dot"></span><span data-f="caption">—</span></p>
+    <p class="caption"><span class="dot"></span><span data-f="caption">—</span><span class="caption__next">до <b data-f="np-mark">—</b> · <b class="caption__secs" data-f="np-secs">—</b></span></p>
 
     <section class="scale" aria-hidden="true">
       <div class="axis" data-f="axis-base"></div>
@@ -450,6 +468,7 @@
 
   const MONTHS = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
   const nf = new Intl.NumberFormat("ru-RU");
+  const nf1 = new Intl.NumberFormat("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const pad = (n, w = 2) => String(n).padStart(w, "0");
   const ru = (n, d) => n.toFixed(d).replace(".", ",");
 
@@ -507,6 +526,7 @@
 
     // ── подвал ────────────────────────────────────────────
     const totalDays = Math.round(SPAN / 864e5);
+    const pctMs = SPAN / 100;                            // один целый процент интервала
     const stepSec = SPAN / 1e6 / 1000;                   // 0,0001 % интервала в секундах
     f["f-start"].textContent = START.toLocaleDateString("ru-RU");
     f["f-total"].textContent = nf.format(totalDays) + " дн · " + nf.format(Math.round(SPAN / 1000)) + " с";
@@ -551,6 +571,17 @@
       f["u-h"].textContent = pad(h);
       f["u-m"].textContent = pad(m);
       f["u-s"].textContent = (ms / 1000).toFixed(2).padStart(5, "0").replace(".", ",");
+
+      // до следующего целого процента: момент один и тот же в обоих режимах —
+      // gone*100 переходит через целое, — меняется только подпись отметки
+      if (over || now <= START.getTime()) {
+        f["np-mark"].textContent = "—";
+        f["np-secs"].textContent = "—";
+      } else {
+        const kNext = Math.floor(gone * 100) + 1;
+        f["np-mark"].textContent = (mode === "left" ? 100 - kNext : kNext) + " %";
+        f["np-secs"].textContent = nf1.format((START.getTime() + kNext * pctMs - now) / 1000) + " с";
+      }
 
       root.classList.toggle("is-over", over);
       f.caption.textContent = over
