@@ -75,13 +75,17 @@
     color-scheme: dark;
   }
 
-  /* второй трекер держит свой акцент, чтобы два отсчёта не сливались */
+  /* второй и третий трекеры держат свой акцент, чтобы отсчёты не сливались */
   .tracker--cool { --accent: #6FA8D0; }
+  .tracker--moss { --accent: #7FBF8A; }
   @media (prefers-color-scheme: light) {
     .tracker--cool { --accent: #1F5E85; }
+    .tracker--moss { --accent: #2E6B3A; }
   }
   :root[data-theme="light"] .tracker--cool { --accent: #1F5E85; }
   :root[data-theme="dark"]  .tracker--cool { --accent: #6FA8D0; }
+  :root[data-theme="light"] .tracker--moss { --accent: #2E6B3A; }
+  :root[data-theme="dark"]  .tracker--moss { --accent: #7FBF8A; }
 
   /* браузерные поверхности — тоже часть панели, а не дефолты движка */
   html { scrollbar-color: var(--faint) transparent; scrollbar-width: thin; }
@@ -403,7 +407,7 @@
 
 <div class="wrap">
   <header class="head">
-    <h1 class="head__title">Трекеры · до 22 и 28 августа</h1>
+    <h1 class="head__title">Трекеры · до 22 и 28 августа и 5 сентября</h1>
     <div class="head__target">точка отсчёта — <b>22.07.2026, 00:00</b> · местное время</div>
   </header>
 
@@ -469,6 +473,13 @@
       date:   "28 августа 2026",
       span:   "22 июля — 28 августа 2026",
       cls:    "tracker--cool"
+    },
+    {
+      target: new Date(2026, 8, 5, 0, 0, 0, 0),      // 5 сентября 2026, 00:00
+      title:  "Трекер · до 5 сентября",
+      date:   "5 сентября 2026",
+      span:   "22 июля — 5 сентября 2026",
+      cls:    "tracker--moss"
     }
   ];
 
