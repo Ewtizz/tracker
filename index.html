@@ -548,6 +548,7 @@
     }
     f["m-left"].addEventListener("click", () => setMode("left"));
     f["m-gone"].addEventListener("click", () => setMode("gone"));
+    if (Date.now() >= TARGET.getTime()) setMode("gone");
 
     // ── тик ───────────────────────────────────────────────
     function render(now) {
@@ -555,13 +556,13 @@
       const gone = Math.max((now - START) / SPAN, 0);
       const over = now >= TARGET.getTime();
 
-      const share = mode === "left" ? 1 - gone : gone;
+      const share = (mode === "left" && !over) ? 1 - gone : gone;
 
       // четыре знака — заявленная точность, ещё три идут «тенью» и меняются покадрово
-      const abs = Math.abs(share * 100).toFixed(7).split(".");
-      f.int.textContent = (share < 0 ? "−" : "") + abs[0];
-      f.frac.textContent = abs[1].slice(0, 4);
-      f.tail.textContent = abs[1].slice(4);
+      const pct = (share * 100).toFixed(7).split(".");
+      f.int.textContent = pct[0];
+      f.frac.textContent = pct[1].slice(0, 4);
+      f.tail.textContent = pct[1].slice(4);
 
       // стрелка стоит на «сейчас», подсвечена та часть шкалы, которую мы показываем;
       // за пределами интервала шкала кончилась — стрелка встаёт на край
@@ -588,15 +589,14 @@
         f["np-secs"].textContent = "—";
       } else {
         const kNext = Math.floor(gone * 100) + 1;
-        const mark = mode === "left" ? 100 - kNext : kNext;
-        f["np-mark"].textContent = (mark < 0 ? "−" + Math.abs(mark) : mark) + " %";
+        const mark = (mode === "left" && !over) ? 100 - kNext : kNext;
+        f["np-mark"].textContent = mark + " %";
         f["np-secs"].textContent = nf1.format((START.getTime() + kNext * pctMs - now) / 1000) + " с";
       }
 
       root.classList.toggle("is-over", over);
       f.caption.textContent = over
-        ? "срок вышел — " + cfg.date + " наступило · "
-          + (mode === "left" ? "перебор" : "прошло") + " от интервала " + cfg.span
+        ? "срок вышел — " + cfg.date + " наступило · прошло от интервала " + cfg.span
         : (mode === "left" ? "осталось" : "прошло") + " от интервала " + cfg.span;
     }
 
